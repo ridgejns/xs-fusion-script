@@ -10,6 +10,7 @@ import csv
 import uuid
 import json
 import sys
+import requests
 
 filename = "三网融合驾驶舱-场景地址及ppt.csv"
 
@@ -130,3 +131,21 @@ s = json.dumps(tree, ensure_ascii=False)
 
 with open("screenURL.json", "w") as f:
     f.write(s)
+
+if len(sys.argv) > 2:
+    print("do data update")
+    x = requests.post(
+        "http://39.170.15.45:8311/access-manager/auth/login",
+        json={
+            "account": "qiangqiang",
+            "password": "28634125dd2a76f56054e8415992b9f9523104a0171660cf6e01978c729016aa",
+            "encoding": "hex",
+        },
+    )
+    token = x.json()["data"]["access_token"]
+    x = requests.post(
+        "http://39.170.15.45:8311/data-manager/dataset/2cd0cdd6-86fb-4db7-b1bd-4124cd40920e/update",
+        json={"content": tree, "update_mode": "overwrite"},
+        headers={"Authorization": "Bearer " + token},
+    )
+    print(x.json())

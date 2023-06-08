@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Lyu Yaopengfei, lypf@citycloud.com.cn
 Date: 2023-06-06 18:41:26
-LastEditTime: 2023-06-06 18:46:30
+LastEditTime: 2023-06-07 21:06:21
 Copyright: (c) 2023 citycloud.com.cn All Rights Reserved.
 '''
 import csv
@@ -38,7 +38,7 @@ with open(filename) as csvfile:
             "color": "",
             "compare": {
                 "prefix": row[header_idx["均比前缀"]]
-                if len(row[header_idx["均比前缀"]]) > 0
+                if len(row[header_idx["均比前缀"]]) > 0 & len(row[header_idx["均比值"]])
                 else "日均",
                 "precent": random.randint(1, 50),
             },

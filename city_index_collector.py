@@ -39,7 +39,7 @@ with open(filename) as csvfile:
             "color": "",
             "compare": {
                 "prefix": row[header_idx["均比前缀"]]
-                if len(row[header_idx["均比前缀"]]) > 0
+                if len(row[header_idx["均比前缀"]]) > 0 & len(row[header_idx["均比值"]])
                 else "日均",
                 "precent": random.randint(1, 50),
             },

@@ -1,10 +1,11 @@
-'''
+# -- coding:UTF-8 --
+"""
 Descripttion: 
 Author: Lyu Yaopengfei, lypf@citycloud.com.cn
 Date: 2023-06-06 18:41:26
-LastEditTime: 2023-06-07 21:06:21
+LastEditTime: 2023-06-08 16:22:48
 Copyright: (c) 2023 citycloud.com.cn All Rights Reserved.
-'''
+"""
 import csv
 import uuid
 import json
@@ -20,13 +21,14 @@ if len(sys.argv) == 1:
 filename = sys.argv[1]
 
 city_indexs = []
-with open(filename) as csvfile:
+with open(filename, encoding="utf-8-sig") as csvfile:
     csv_reader = csv.reader(csvfile)  # 使用csv.reader读取csvfile中的文件
     headers = next(csv_reader)  # 读取第一行每一列的标题
     print(headers)
     header_idx = {}
     for i, h in enumerate(headers):
         header_idx[h] = i
+
     for i, row in enumerate(csv_reader):  # 将csv 文件中的数据保存到data中
         if row[header_idx["指标"]] == "":
             continue
@@ -36,17 +38,18 @@ with open(filename) as csvfile:
             "value": random.randint(1, 5000),
             "unit": row[header_idx["单位"]],
             "color": "",
-            "compare": {
-                "prefix": row[header_idx["均比前缀"]]
-                if len(row[header_idx["均比前缀"]]) > 0 & len(row[header_idx["均比值"]])
-                else "日均",
-                "precent": random.randint(1, 50),
-            },
             "category_field_6": row[header_idx["六大领域"]],
             "type": row[header_idx["类型"]],
             "value_url": row[header_idx["接口地址"]],
             "alarm": False,
         }
+        if len(row[header_idx["均比值"]]) > 0:
+            ci["compare"] = {
+                "prefix": row[header_idx["均比前缀"]]
+                if len(row[header_idx["均比前缀"]]) > 0
+                else "日均",
+                "precent": random.randint(1, 50),
+            }
         if row[header_idx["告警"]] == "是":
             ci["alarm"] = True
 

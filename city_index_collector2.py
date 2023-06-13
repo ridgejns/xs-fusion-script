@@ -47,25 +47,28 @@ with open(filename, encoding="utf-8-sig") as csvfile:
             },
             "category_field_6": row[header_idx["领域"]],
             "category_field_6_2": row[header_idx["二级指标"]],
-            "value_url": row[header_idx["接口地址"]],
+            "value_url_type": row[header_idx["接口类型"]],
             "alarm": False,
         }
-        minv=row[header_idx["最小值"]]
-        if len(minv)>0:
+        if len(row[header_idx["接口地址"]]) > 0:
+            ci["value_url"] = row[header_idx["接口地址"]]
+            
+        minv = row[header_idx["最小值"]]
+        if len(minv) > 0:
             if "%" in minv:
-                v = float(minv.strip("%"))/100
+                v = float(minv.strip("%")) / 100
             else:
                 v = float(minv)
-            ci[ "min_value"]={"value":v,"desc":""}
-            
+            ci["min_value"] = {"value": v, "desc": ""}
+
         maxv = row[header_idx["最大值"]]
-        if  len(row[header_idx["最大值"]])>0:
+        if len(row[header_idx["最大值"]]) > 0:
             if "%" in maxv:
-                v = float(maxv.strip("%"))/100
+                v = float(maxv.strip("%")) / 100
             else:
                 v = float(maxv)
-            ci[ "max_value"]={"value":v,"desc":""}
-        
+            ci["max_value"] = {"value": v, "desc": ""}
+
         if len(row[header_idx["均比值"]]) > 0:
             ci["compare"]["precent"] = row[header_idx["均比值"]]
 

@@ -37,21 +37,23 @@ with open(filename, encoding="utf-8-sig") as csvfile:
             "label": row[header_idx["指标"]],
             "value": random.randint(1, 5000),
             "unit": row[header_idx["单位"]],
-            "source":row[header_idx["来源"]],
-            "color": "",
+            "source": row[header_idx["来源"]],
+            "color": "#458FFF",
+            "compare": {
+                "prefix": row[header_idx["均比前缀"]]
+                if len(row[header_idx["均比前缀"]]) > 0
+                else "日均",
+                "precent": random.randint(1, 50),
+            },
             "category_field_6": row[header_idx["领域"]],
             "category_field_6_2": row[header_idx["二级指标"]],
             "category_2": row[header_idx["分类"]],
             "value_url": row[header_idx["接口地址"]],
             "alarm": False,
         }
-        if len(row[header_idx["均比值"]])>0:
-            ci["compare"]={
-                "prefix": row[header_idx["均比前缀"]]
-                if len(row[header_idx["均比前缀"]]) > 0 
-                else "日均",
-                "precent": random.randint(1, 50),
-            }
+        if len(row[header_idx["均比值"]]) > 0:
+            ci["compare"]["precent"] = row[header_idx["均比值"]]
+
         if row[header_idx["告警"]] == "是":
             ci["alarm"] = True
 

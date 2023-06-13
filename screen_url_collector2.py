@@ -2,8 +2,8 @@
 """
 Descripttion: 
 Author: Lyu Yaopengfei, lypf@citycloud.com.cn
-Date: 2023-06-06 11:08:28
-LastEditTime: 2023-06-06 11:33:51
+Date: 2023-06-12 10:49:02
+LastEditTime: 2023-06-12 15:05:57
 Copyright: (c) 2023 citycloud.com.cn All Rights Reserved.
 """
 import csv
@@ -20,6 +20,7 @@ if len(sys.argv) == 1:
 filename = sys.argv[1]
 
 tree = []
+sort_nums = []
 with open(filename, encoding="utf-8-sig") as csvfile:
     csv_reader = csv.reader(csvfile)  # 使用csv.reader读取csvfile中的文件
     headers = next(csv_reader)  # 读取第一行每一列的标题
@@ -29,16 +30,16 @@ with open(filename, encoding="utf-8-sig") as csvfile:
         header_idx[h] = i
 
     for row in csv_reader:  # 将csv 文件中的数据保存到data中
-        if row[header_idx["一级标题（旧）"]] == "":
+        if row[header_idx["一级标题（0612更新）"]] == "":
             continue
         item_tree = None
         for t in tree:
-            if row[header_idx["一级标题（旧）"]] == t["abbreviationName"]:
+            if row[header_idx["一级标题（0612更新）"]] == t["abbreviationName"]:
                 item_tree = t
         if item_tree is None:
             tb = {
                 "id": str(uuid.uuid4()),
-                "abbreviationName": row[header_idx["一级标题（旧）"]],
+                "abbreviationName": row[header_idx["一级标题（0612更新）"]],
                 "depth": 1,
                 "children": [],
             }
@@ -48,18 +49,31 @@ with open(filename, encoding="utf-8-sig") as csvfile:
 
         item_tree2 = None
         for t in item_tree["children"]:
-            if row[header_idx["二级标题（旧）"]] == t["abbreviationName"]:
+            if row[header_idx["二级标题（0612更新）"]] == t["abbreviationName"]:
                 item_tree2 = t
         if item_tree2 is None:
+            srn = int(row[header_idx["标题优先级"]])
             tb2 = {
                 "id": str(uuid.uuid4()),
-                "abbreviationName": row[header_idx["二级标题（旧）"]],
+                "abbreviationName": row[header_idx["二级标题（0612更新）"]],
                 "depth": 2,
                 "children": [],
+                "sort_num": srn,
             }
             item_tree2 = tb2
             print("2:", item_tree2)
-            item_tree["children"].append(item_tree2)
+            if len(sort_nums) > 0:
+                idx = 0
+                for sort_num in sort_nums:
+                    if sort_num < srn:
+                        idx += 1
+                sort_nums.insert(idx, srn)
+                item_tree["children"].insert(idx, item_tree2)
+            else:
+                sort_nums.append(int(row[header_idx["标题优先级"]]))
+                item_tree["children"].append(item_tree2)
+
+            # item_tree["children"].append(item_tree2)
 
         item_tree3 = None
         for t in item_tree2["children"]:
@@ -79,25 +93,6 @@ with open(filename, encoding="utf-8-sig") as csvfile:
             item_tree2["children"].append(item_tree3)
 
         final_item_tree = item_tree3
-        if (
-            item_tree["abbreviationName"] == "融合场景"
-            and item_tree2["abbreviationName"] == "流程再造"
-        ):
-            item_tree4 = None
-            for t in item_tree3["children"]:
-                if row[header_idx["应用名称"]] == t["abbreviationName"]:
-                    item_tree4 = t
-            if item_tree4 is None:
-                tb4 = {
-                    "id": str(uuid.uuid4()),
-                    "abbreviationName": row[header_idx["应用名称"]],
-                    "depth": 4,
-                    "children": [],
-                }
-                item_tree4 = tb4
-                print("4:", item_tree4)
-                item_tree3["children"].append(item_tree4)
-            final_item_tree = item_tree4
 
         final_item_tree["panelUrl"] = row[header_idx["链接地址"]]
         final_item_tree["panelImgUrls"] = []
@@ -127,7 +122,7 @@ with open(filename, encoding="utf-8-sig") as csvfile:
                 print(e)
 
 s = json.dumps(tree, ensure_ascii=False)
-# print(s)
+print(s)
 
 with open("screenURL.json", "w") as f:
     f.write(s)
@@ -144,7 +139,7 @@ if len(sys.argv) > 2:
     )
     token = x.json()["data"]["access_token"]
     x = requests.post(
-        "http://39.170.15.45:8311/data-manager/dataset/2cd0cdd6-86fb-4db7-b1bd-4124cd40920e/update",
+        "http://39.170.15.45:8311/data-manager/dataset/0908c70c-8139-4299-a2d2-28052a2810bf/update",
         json={"content": tree, "update_mode": "overwrite"},
         headers={"Authorization": "Bearer " + token},
     )

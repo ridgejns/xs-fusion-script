@@ -52,7 +52,7 @@ with open(filename, encoding="utf-8-sig") as csvfile:
         }
         if len(row[header_idx["接口地址"]]) > 0:
             ci["value_url"] = row[header_idx["接口地址"]]
-            
+
         minv = row[header_idx["最小值"]]
         if len(minv) > 0:
             if "%" in minv:
@@ -95,19 +95,55 @@ with open("cityIndexs.json", "w") as f:
     f.write(s)
 
 if len(sys.argv) > 2:
-    print("do data update")
-    x = requests.post(
-        "http://39.170.15.45:8311/access-manager/auth/login",
-        json={
-            "account": "qiangqiang",
-            "password": "28634125dd2a76f56054e8415992b9f9523104a0171660cf6e01978c729016aa",
-            "encoding": "hex",
-        },
-    )
-    token = x.json()["data"]["access_token"]
-    x = requests.post(
-        "http://39.170.15.45:8311/data-manager/dataset/fd49e0e8-ea4e-4d6e-8da3-97fe393ad4a1/update",
-        json={"content": city_indexs, "update_mode": "overwrite"},
-        headers={"Authorization": "Bearer " + token},
-    )
-    print(x.json())
+    print("do data update in " + sys.argv[2])
+    if sys.argv[2] == "datam":
+        # ------------------ #
+        # 如有变更，请手动更新
+        host = "http://39.170.15.45:8311"
+        oid = "fd49e0e8-ea4e-4d6e-8da3-97fe393ad4a1"
+        # 如有变更，请手动更新
+        # ------------------ #
+        x = requests.post(
+            host + "/access-manager/auth/login",
+            json={
+                "account": "qiangqiang",
+                "password": "28634125dd2a76f56054e8415992b9f9523104a0171660cf6e01978c729016aa",
+                "encoding": "hex",
+            },
+        )
+        token = x.json()["data"]["access_token"]
+        x = requests.post(
+            host + "/data-manager/dataset/" + oid + "/update",
+            json={"content": city_indexs, "update_mode": "overwrite"},
+            headers={"Authorization": "Bearer " + token},
+        )
+        print(x.json())
+    elif sys.argv[2] == "css":
+        # ------------------ #
+        # 如有变更，请手动更新
+        host = "http://10.162.12.144"
+        resultIndexId = "11"
+        # 如有变更，请手动更新
+        # ------------------ #
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        x = requests.post(
+            host + "/v1/index/login",
+            headers=headers,
+            data={"userNo": "admin", "password": "sa"},
+        )
+        token = x.json()["data"]["accessToken"]
+        headers["Accesstoken"] = token
+
+        x = requests.get(
+            host + "/v1/sys/indextemplate/findDetail?resultIndexId=" + resultIndexId,
+            headers=headers,
+        )
+        data = x.json()["data"][0]
+        data["resultData"] = s
+
+        x = requests.post(
+            host + "/v1/sys/indextemplate/update",
+            headers=headers,
+            data=data,
+        )
+        print(x.json())
